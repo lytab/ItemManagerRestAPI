@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Item;
 use Illuminate\Http\Request;
-
+use Validator;
 class ItemController extends Controller
 {
     /**
@@ -18,16 +18,7 @@ class ItemController extends Controller
        return response()->json($items);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
+   
     /**
      * Store a newly created resource in storage.
      *
@@ -36,7 +27,22 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules=[
+            'text'=>'required',
+        ];
+        
+        $validator=Validator::make($request->all(),$rules);
+        if($validator->fails()){
+            $response=array('response'=>$validator->messages(),'success'=>false);
+            return $response;
+        }else{
+            $item=new Item();
+            $item->text=$request->text;
+            $item->body=$request->body;
+            $item->save();
+            return response()->json($item);
+
+        }
     }
 
     /**
@@ -51,17 +57,7 @@ class ItemController extends Controller
         return response()->json($item);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Item  $item
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Item $item)
-    {
-        //
-    }
-
+   
     /**
      * Update the specified resource in storage.
      *
@@ -69,9 +65,24 @@ class ItemController extends Controller
      * @param  \App\Item  $item
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Item $item)
+    public function update(Request $request,$id)
     {
-        //
+        $rules=[
+            'text'=>'required',
+        ];
+        
+        $validator=Validator::make($request->all(),$rules);
+        if($validator->fails()){
+            $response=array('response'=>$validator->messages(),'success'=>false);
+            return $response;
+        }else{
+            $item=Item::findOrFail($id);
+            $item->text=$request->text;
+            $item->body=$request->body;
+            $item->save();
+            return response()->json($item);
+
+        }
     }
 
     /**
@@ -80,8 +91,12 @@ class ItemController extends Controller
      * @param  \App\Item  $item
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Item $item)
+    public function destroy($id)
     {
-        //
+        $item=Item::findOrFail($id);
+        $item->delete();
+        $response=array('response'=>'Item deleted !!','success'=>true);
+
+        return $response;
     }
 }
